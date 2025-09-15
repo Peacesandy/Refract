@@ -9,7 +9,7 @@ In this guide, we’ll build a simple Counter App together. Don’t be fooled by
 
 Think of it as your "Hello World," but interactive.
 
-🧭 Tutorial Path
+## 🧭 Tutorial Path
 
 This tutorial is part of the Getting Started section.
 If you haven’t already, make sure you’ve gone through:
@@ -18,35 +18,35 @@ If you haven’t already, make sure you’ve gone through:
 
 - Project Structure
 
-Next up after this tutorial:
+Next up after this tutorial: Creating Your First Form
 
-## Creating Your First Form
-
-**Step 1: Create the Counter Component**
+## Step 1: Create the Counter Component
 
 First, inside your src/component folder, create a new file called Counter.js.
 
 Add the following code:
 
-```js
-import React, { useState } from "react";
+```js html title="public/component"
+import { createComponent } from "refract";
 
-export default function Counter() {
-	const [count, setCount] = useState(0);
+const Counter = createComponent(({ lens }) => {
+	// Define a reactive state for the counter value
+	const count = lens.useRefraction(0);
 
 	return (
-		<div style={{ textAlign: "center", marginTop: "2rem" }}>
-			<h2>Counter App</h2>
-			<p>Current count: {count}</p>
-			<button onClick={() => setCount(count + 1)}>Increase</button>
-			<button
-				onClick={() => setCount(count - 1)}
-				style={{ marginLeft: "1rem" }}>
-				Decrease
-			</button>
+		<div className='counter'>
+			<h2>My Counter App</h2>
+			<div className='count-display'>{count.value}</div>
+			<div className='buttons'>
+				<button onClick={() => count.set(count.value - 1)}>-</button>
+				<button onClick={() => count.set(count.value + 1)}>+</button>
+				<button onClick={() => count.set(0)}>Reset</button>
+			</div>
 		</div>
 	);
-}
+});
+
+export default Counter;
 ```
 
 ## What’s happening here?
@@ -64,7 +64,7 @@ Counters are the simplest way to understand how state flows through your app.
 If you get this, you’ll understand the backbone of every interactive UI you’ll ever build with Refract.
 :::
 
-**Step 2: Import the Component into Docs**
+## Step 2: Import the Component into Docs and add Styling
 
 Now, let’s render the Counter component inside your docs page.
 
@@ -74,17 +74,80 @@ Open docs/tutorial/counter-app.mdx (this file) and add:
 import Counter from "@site/src/component/Counter";
 ```
 
-## Building a Counter App
+Here’s a simple stylesheet to make the counter more visually appealing:
 
-Here’s our Counter in action:
+```css html title="Counter Styles"
+.counter {
+	max-width: 300px;
+	margin: 2rem auto;
+	padding: 2rem;
+	border: 2px solid #e1e5e9;
+	border-radius: 12px;
+	text-align: center;
+	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-```js
-<Counter />
+.counter h2 {
+	margin: 0 0 1.5rem 0;
+	color: #2c3e50;
+	font-size: 1.5rem;
+}
+
+.count-display {
+	font-size: 3rem;
+	font-weight: bold;
+	color: #3498db;
+	margin: 1.5rem 0;
+	padding: 1rem;
+	background: white;
+	border-radius: 8px;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+	min-height: 80px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.buttons {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: center;
+}
+
+.buttons button {
+	padding: 0.75rem 1.5rem;
+	font-size: 1.2rem;
+	font-weight: bold;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	min-width: 60px;
+}
+
+.buttons button:first-child,
+.buttons button:nth-child(2) {
+	background: #3498db;
+	color: white;
+}
+
+.buttons button:last-child {
+	background: #e74c3c;
+	color: white;
+}
+
+.buttons button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.buttons button:active {
+	transform: translateY(0);
+}
 ```
 
-When you restart your dev server, the live component will appear inside the documentation. Pretty cool, right? 🚀
-
-**Step 3: Try It Out**
+## Step 3: Try It Out
 
 Start your dev server:
 
@@ -96,7 +159,7 @@ Navigate to the tutorial page. You’ll now see your Counter App running inside 
 
 Go ahead and click the buttons you should see the number increasing and decreasing instantly.
 
-**Step 4: Add More Functionality**
+## Step 4: Add More Functionality
 
 Let’s go a little further. Add a Reset button so the count can go back to zero.
 
@@ -122,32 +185,90 @@ Rendering – Refract updates the UI whenever state changes.
 Everything else you’ll build — from dashboards to forms to entire apps — is just a more complex version of this cycle.
 :::
 
-**Step 5: Add Styles**
+## Step 5: Add a Custom Size
 
-Let’s make it look a little nicer. Create a CSS file, Counter.css:
+To make the counter more versatile, we’ll introduce a step size input so users can control how much the counter increments or decrements.
 
-```js
-.counter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 2rem;
-}
+Here’s how to enhance the counter with step size support:
 
-.counter button {
-  padding: 0.5rem 1rem;
-  margin: 0.25rem;
-  border: none;
-  border-radius: 5px;
-  background: #4cafef;
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-}
+```js title="Flexible Counter Component"
+import { createComponent } from "refract";
 
-.counter button:hover {
-  background: #2196f3;
-}
+const FlexibleCounter = createComponent(({ lens }) => {
+	const count = lens.useRefraction(0);
+	const stepSize = lens.useRefraction(1);
+
+	// Load saved values from localStorage
+	lens.useEffect(() => {
+		const savedCount = localStorage.getItem("counter-value");
+		const savedStep = localStorage.getItem("counter-step");
+
+		if (savedCount !== null) {
+			const parsedCount = parseInt(savedCount, 10);
+			if (!isNaN(parsedCount)) {
+				count.set(parsedCount);
+			}
+		}
+
+		if (savedStep !== null) {
+			const parsedStep = parseInt(savedStep, 10);
+			if (!isNaN(parsedStep) && parsedStep > 0) {
+				stepSize.set(parsedStep);
+			}
+		}
+	}, []);
+
+	// Persist values to localStorage
+	lens.useEffect(() => {
+		localStorage.setItem("counter-value", count.value.toString());
+	}, [count.value]);
+
+	lens.useEffect(() => {
+		localStorage.setItem("counter-step", stepSize.value.toString());
+	}, [stepSize.value]);
+
+	// Counter actions
+	const increment = () => count.set(count.value + stepSize.value);
+	const decrement = () => count.set(count.value - stepSize.value);
+	const reset = () => count.set(0);
+
+	return (
+		<div className='counter'>
+			<h2>Flexible Counter</h2>
+
+			<div className='step-control'>
+				<label>
+					Step Size:{" "}
+					<input
+						type='number'
+						min='1'
+						value={stepSize.value}
+						onChange={(e) => {
+							const value = parseInt(e.target.value, 10);
+							if (!isNaN(value) && value > 0) {
+								stepSize.set(value);
+							}
+						}}
+					/>
+				</label>
+			</div>
+
+			<div className='count-display'>{count.value}</div>
+
+			<div className='buttons'>
+				<button onClick={decrement}>-{stepSize.value}</button>
+				<button onClick={increment}>+{stepSize.value}</button>
+				<button onClick={reset}>Reset</button>
+			</div>
+
+			<p className='persistence-note'>
+				💾 Count and step size are saved automatically!
+			</p>
+		</div>
+	);
+});
+
+export default FlexibleCounter;
 ```
 
 And import it at the top of your Counter.js:
