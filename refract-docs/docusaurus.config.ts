@@ -41,6 +41,8 @@ const config: Config = {
 			"classic",
 			{
 				docs: {
+					showLastUpdateAuthor: true, // 👈 shows "Last updated by"
+					showLastUpdateTime: true, // 👈 shows "Last updated on"
 					sidebarPath: "./sidebars.ts",
 					// Please change this to your repo.
 					// Remove this to remove the "edit this page" links.
