@@ -41,6 +41,9 @@ const config: Config = {
 			"classic",
 			{
 				docs: {
+					remarkPlugins: [
+						[require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
+					],
 					showLastUpdateAuthor: true, // 👈 shows "Last updated by"
 					showLastUpdateTime: true, // 👈 shows "Last updated on"
 					sidebarPath: "./sidebars.ts",
@@ -50,6 +53,9 @@ const config: Config = {
 						"https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
 				},
 				blog: {
+					remarkPlugins: [
+						[require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
+					],
 					showReadingTime: true,
 					feedOptions: {
 						type: ["rss", "atom"],
@@ -64,6 +70,7 @@ const config: Config = {
 					onInlineAuthors: "warn",
 					onUntruncatedBlogPosts: "warn",
 				},
+
 				theme: {
 					customCss: "./src/css/custom.css",
 				},
