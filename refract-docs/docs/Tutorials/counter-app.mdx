@@ -5,48 +5,51 @@ title: Counter App
 
 Welcome to your very first hands-on tutorial in Refract! 🎉
 
-In this guide, we’ll build a simple Counter App together. Don’t be fooled by its simplicity — this little app introduces you to the most important concepts in Refract: components, state, and event handling.
-
-Think of it as your "Hello World," but interactive.
+In this guide, we’ll build a simple Counter App together. Don’t be fooled by its simplicity this little app introduces you to the most important concepts in Refract: components, state, and event handling. Think of it as your "Hello World," but interactive.
 
 ## 🧭 Tutorial Path
 
+:::note
 This tutorial is part of the Getting Started section.
 If you haven’t already, make sure you’ve gone through:
 
 - Installation
 
 - Project Structure
+  :::
 
-Next up after this tutorial: Creating Your First Form
+## Step 1: Initialize Your Project
 
-## Step 1: Create the Counter Component
+First, let's set up the foundation in your main app file:
+
+```javascript
+import { createApp } from "@refract-framework/core";
+
+const app = createApp();
+```
+
+This creates a new Refract application instance. The `createApp` function is your gateway to all Refract features - we'll explore more advanced uses in the [API Reference](http://localhost:3000/docs/api-reference/create-app).
+
+## Step 2: Create a Counter Component
 
 First, inside your src/component folder, create a new file called Counter.js.
+Now, let's build our counter component using `createComponent`:
 
-Add the following code:
+```js html title="public/Counter.js"
+import { createComponent, useRefraction } from "@refract-framework/core";
 
-```js html title="public/component"
-import { createComponent } from "refract";
+const Counter = createComponent(() => {
+	const [count, setCount] = useRefraction(0); // Initialize with 0
 
-const Counter = createComponent(({ lens }) => {
-	// Define a reactive state for the counter value
-	const count = lens.useRefraction(0);
-
-	return (
-		<div className='counter'>
-			<h2>My Counter App</h2>
-			<div className='count-display'>{count.value}</div>
-			<div className='buttons'>
-				<button onClick={() => count.set(count.value - 1)}>-</button>
-				<button onClick={() => count.set(count.value + 1)}>+</button>
-				<button onClick={() => count.set(0)}>Reset</button>
+	return {
+		view: () => (
+			<div>
+				<p>Current count: {count.value}</p>
+				<button onClick={() => setCount(count.value + 1)}>Increment</button>
 			</div>
-		</div>
-	);
+		),
+	};
 });
-
-export default Counter;
 ```
 
 ## What’s happening here?
@@ -64,7 +67,7 @@ Counters are the simplest way to understand how state flows through your app.
 If you get this, you’ll understand the backbone of every interactive UI you’ll ever build with Refract.
 :::
 
-## Step 2: Import the Component into Docs and add Styling
+## Step 3: Import the Component into Docs and add Styling
 
 Now, let’s render the Counter component inside your docs page.
 
@@ -158,6 +161,12 @@ npm run start
 Navigate to the tutorial page. You’ll now see your Counter App running inside your documentation.
 
 Go ahead and click the buttons you should see the number increasing and decreasing instantly.
+
+#### Live Demo
+
+import CounterDemo from "@site/src/components/HomepageFeatures/CounterDemo";
+
+<CounterDemo />
 
 ## Step 4: Add More Functionality
 
